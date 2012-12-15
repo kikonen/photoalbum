@@ -1,0 +1,12 @@
+.gradle/*
+bin/*
+db/*
+build/*
+repos/*
+tmp/*
+*~
+~*
+#*
+*#
+WebContent/VAADIN/*
+WebContent/widgetsets/*

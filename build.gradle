@@ -1,0 +1,73 @@
+// apply plugin: 'java'
+apply plugin: 'war'  
+apply plugin: 'eclipse'  
+apply plugin: 'jetty'  
+
+// Project properties  
+version = "0.0.1"  
+sourceCompatibility = 1.6  
+targetCompatibility = 1.6  
+webAppDirName = 'WebContent'
+ext.vaadinDir = webAppDirName+'/VAADIN'  
+ext.gwtBuildDir = vaadinDir + '/widgetsets'  
+ext.widgetsetClass = 'org.kari.album.PhotoAlbumApplicationWidgetset'  
+
+jar {
+//    manifest {
+//        attributes 'Implementation-Title': 'Photo Album', 'Implementation-Version': version
+//    }
+}
+
+// Repositories  
+repositories{  
+    mavenCentral()  
+    mavenRepo url: 'http://maven.vaadin.com/vaadin-addons'  
+}  
+    
+// Dependencies  
+dependencies{  
+    compile "com.vaadin:vaadin-server:7.0.0.beta10"  
+    compile "com.vaadin:vaadin-client:7.0.0.beta10"  
+    compile "com.vaadin:vaadin-client-compiler:7.0.0.beta10"  
+//    compile "com.google.gwt:gwt-user:2.3.0"  
+//    compile "com.google.gwt:gwt-dev:2.3.0"
+//    compile "org.vaadin.addons:qrcode:1.2.0"  
+}
+
+// Setup source folders  
+sourceSets{  
+    main{  
+        java{  
+            srcDir 'src'  
+        }  
+    }  
+}
+
+// Widgetset compilation  
+task widgetset << {  
+    // Compile  
+    ant.java(classname: 'com.google.gwt.dev.Compiler', failOnError: 'yes', fork: 'true')
+    {
+        classpath {  
+            pathElement(path: configurations.compile.asPath)  
+            pathElement(path: sourceSets.main.runtimeClasspath.asPath)  
+            sourceSets.main.java.srcDirs.each{  
+                pathelement(location:it.absolutePath)  
+            }  
+        }  
+  
+        arg(line: '-war ' + gwtBuildDir)  
+        arg(line: '-logLevel INFO')  
+        arg(line: '-style OBF')  
+        arg(line: '-localWorkers 2')  
+        arg(line: widgetsetClass)  
+  
+        jvmarg(value: '-Djava.awt.headless=true')  
+        jvmarg(value: '-XX:MaxPermSize=256M')  
+        jvmarg(value: '-Xmx512M')  
+    }  
+}
+
+
+// Require widgetset compilation before WAR is built  
+// war.dependsOn widgetset  
