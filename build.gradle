@@ -1,12 +1,12 @@
-// apply plugin: 'java'
+apply plugin: 'java'
 apply plugin: 'war'  
 apply plugin: 'eclipse'  
 apply plugin: 'jetty'  
 
 // Project properties  
-version = "0.0.1"  
-sourceCompatibility = 1.6  
-targetCompatibility = 1.6  
+version = "0.0.1"
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
 webAppDirName = 'WebContent'
 ext.vaadinDir = webAppDirName+'/VAADIN'  
 ext.gwtBuildDir = vaadinDir + '/widgetsets'  
@@ -21,35 +21,71 @@ jar {
 // Repositories  
 repositories{  
     mavenCentral()  
-    mavenRepo url: 'http://maven.vaadin.com/vaadin-addons'  
-}  
-    
+    mavenRepo url: 'http://maven.vaadin.com/vaadin-addons'  		
+	ivy {
+		name = 'local-repo'
+		url	 "../KUI/repos"
+	}
+	//	def f = file("../KUI/repos")
+	//	f.listFiles().each { println it }
+}
+
+configurations {
+	compileWidgetset
+	sshAntTask
+}
+
 // Dependencies  
-dependencies{  
+dependencies{
+	compile "log4j:log4j:1.2.17"
+	compile "net.sf.trove4j:trove4j:3.0.3"
+	compile "net.java.dev.glazedlists:glazedlists_java15:1.8.0"
+	compile "com.drewnoakes:metadata-extractor:2.6.2"
+//	compile "org.kari:KUI:1.0"
+	compile files("../KUI/repos/KUI-1.0.jar")
+//    compile files("lib/icepush-0.5.0.jar")
+//	compile files("lib/metadata-extractor-2.3.1.jar")
+
+	compile "org.icefaces:icepush:3.0.1"
+	compile "org.vaadin.addons:icepush:0.5.3"
+//	compile "org.vaadin.addons:icepush-gwt:0.5.3"
+	compile files("lib/icepush-gwt.jar")
+	
     compile "com.vaadin:vaadin-server:7.0.0.beta10"  
-    compile "com.vaadin:vaadin-client:7.0.0.beta10"  
-    compile "com.vaadin:vaadin-client-compiler:7.0.0.beta10"  
-//    compile "com.google.gwt:gwt-user:2.3.0"  
+    compile "com.vaadin:vaadin-client:7.0.0.beta10"
+//    compile "com.vaadin:vaadin-shared:7.0.0.beta10"
+    compile "com.vaadin:vaadin-client-compiled:7.0.0.beta10"  
+    compile "com.vaadin:vaadin-themes:7.0.0.beta10"  	
+
+//	compile "com.google.gwt:gwt-user:2.3.0"  
 //    compile "com.google.gwt:gwt-dev:2.3.0"
-//    compile "org.vaadin.addons:qrcode:1.2.0"  
+
+//    compileWidgetset "com.vaadin:vaadin-theme-compiler:7.0.0.beta10"  	
+    compileWidgetset "com.vaadin:vaadin-client-compiler:7.0.0.beta10"  	
+
+	sshAntTask 'org.apache.ant:ant-jsch:1.7.1', 'jsch:jsch:0.1.29'	
 }
 
 // Setup source folders  
 sourceSets{  
     main{  
-        java{  
+        java {
             srcDir 'src'  
+        }  
+        resources {
+            srcDir 'resources'  
         }  
     }  
 }
 
 // Widgetset compilation  
-task widgetset << {  
+task compileWidgetset << {  
     // Compile  
     ant.java(classname: 'com.google.gwt.dev.Compiler', failOnError: 'yes', fork: 'true')
     {
         classpath {  
             pathElement(path: configurations.compile.asPath)  
+            pathElement(path: configurations.compileWidgetset.asPath)  
             pathElement(path: sourceSets.main.runtimeClasspath.asPath)  
             sourceSets.main.java.srcDirs.each{  
                 pathelement(location:it.absolutePath)  
@@ -67,7 +103,29 @@ task widgetset << {
         jvmarg(value: '-Xmx512M')  
     }  
 }
-
+compileWidgetset.dependsOn classes
 
 // Require widgetset compilation before WAR is built  
-// war.dependsOn widgetset  
+// war.dependsOn compileWidgetset  
+
+
+task uploadKI() {
+	ant.taskdef(
+		name: 'scp',
+		classname: 'org.apache.tools.ant.taskdefs.optional.ssh.Scp',
+		classpath: configurations.sshAntTask.asPath)
+
+	doLast {
+		// Get password from user.
+		def console = System.console()
+		def passwd = console.readPassword('%s: ', 'password')
+
+		ant.scp(
+			file: 'build/libs/photoalbum-0.0.1.war',
+			todir: 'kari@192.168.11.10:/home/kari/tmp',
+			password: passwd as String,
+			port: '23',
+			verbose: 'true',
+			trust: 'true')
+	}
+}
