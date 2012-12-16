@@ -20,9 +20,7 @@ import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Embedded;
-import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 
@@ -31,7 +29,7 @@ import com.vaadin.ui.VerticalLayout;
  * 
  * @author kari
  */
-public class FolderContentView extends Panel {
+public final class FolderContentView extends VerticalLayout {
     /**
      * Cache fill for first screen full in worker thread
      */
@@ -212,25 +210,13 @@ public class FolderContentView extends Panel {
         mPreviewListener = pPreviewListener;
         mPusher = pPusher;
         
-        if (false) {
-            GridLayout grid = new GridLayout(1,1);
-            grid.setSizeFull();
-            grid.addComponent(mTable, 0, 0);
-            setContent(grid);
-            
-        } else {
-            VerticalLayout layout = new VerticalLayout();
-//            layout.setMargin(false, false, false, false);
-            layout.setSizeFull();
+        setSizeFull();
 
-            layout.addComponent(mTable);
-            layout.addComponent(mInfo);
+        addComponent(mTable);
+        addComponent(mInfo);
 
-            // @see http://vaadin.com/forum/-/message_boards/message/197142
-            layout.setExpandRatio(mTable, 1);
-            
-            setContent(layout);
-        }
+        // @see http://vaadin.com/forum/-/message_boards/message/197142
+        setExpandRatio(mTable, 1);
         
         setSizeFull();
     }
@@ -272,7 +258,7 @@ public class FolderContentView extends Panel {
         table.addGeneratedColumn(COL_IMAGE, generator);
         table.addGeneratedColumn(COL_DETAILS, generator);
         
-        table.addListener(new ValueChangeListener() {
+        table.addValueChangeListener(new ValueChangeListener() {
             @Override
             public void valueChange(ValueChangeEvent pEvent) {
                 Object value = pEvent.getProperty().getValue();
