@@ -11,7 +11,7 @@ import java.util.Map;
 
 import org.kari.album.AlbumConstants;
 import org.kari.album.ui.ImageAccess.ThumbInfo;
-import org.kari.util.Refresher;
+import org.kari.util.concurrent.Refresher;
 import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -286,8 +286,7 @@ public final class FolderContentView extends VerticalLayout {
 
             String size = "?";
             if (containsFiles(mDir)) {
-                getFolderChanger().start();
-                getFolderChanger().setData(mDir);
+                getFolderChanger().start(mDir);
                 
                 IndexedContainer ds = new IndexedContainer();
                 ds.addItem("wait...");

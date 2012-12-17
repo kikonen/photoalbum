@@ -5,7 +5,7 @@ import java.io.File;
 import org.kari.album.AlbumConstants;
 import org.kari.album.AlbumUI;
 import org.kari.album.ui.ImageAccess.ThumbInfo;
-import org.kari.util.Refresher;
+import org.kari.util.concurrent.Refresher;
 import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.server.SystemError;
@@ -137,13 +137,12 @@ public final class FolderBrowserWindow extends VerticalLayout
 
     @Override
     public void showPreview(File pFile) {
-        getPreviewer().start();
-        getPreviewer().setData(pFile);
+        getPreviewer().start(pFile);
     }
     
     Refresher<File> getPreviewer() {
         if (mPreviewer == null) {
-            mPreviewer = new Refresher<File>(150) {
+            mPreviewer = new Refresher<File>(100) {
                 @Override
                 protected Object construct(File pData)
                     throws Exception
@@ -173,18 +172,20 @@ public final class FolderBrowserWindow extends VerticalLayout
                 }
 
                 @Override
-                protected void handleError(Exception pError, File pData) {
+                protected void failed(Exception pError, File pData) {
                     AlbumConstants.LOG.error("refresher failed: " + pData, pError);
                     
-                    final VaadinSession session = getUI().getSession();
-                    session.lock();
-                    try {
-                        mPreviewView.setComponentError(new SystemError(pError));
-                    } finally {
-                        session.unlock();
+                    if (getUI() != null) {
+                        final VaadinSession session = getUI().getSession();
+                        session.lock();
+                        try {
+                            mPreviewView.setComponentError(new SystemError(pError));
+                        } finally {
+                            session.unlock();
+                        }
+    
+                        mPusher.push();
                     }
-
-                    mPusher.push();
                 }
             };
         }

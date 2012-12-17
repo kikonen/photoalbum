@@ -3,7 +3,7 @@ package org.kari.album.ui;
 import java.io.File;
 
 import org.kari.album.AlbumConstants;
-import org.kari.util.Refresher;
+import org.kari.util.concurrent.Refresher;
 import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -15,7 +15,6 @@ import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Layout;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.Tree;
@@ -100,8 +99,7 @@ public final class FolderTreeView extends VerticalLayout
                 }
                 
                 Refresher<File> changer = getFolderChanger();
-                changer.start();
-                changer.setData(dir);
+                changer.start(dir);
             }
         });
         return tree;
