@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module>  
-    <inherits name="com.vaadin.terminal.gwt.DefaultWidgetSet" />   
+<module>
+    <define-linker name="scssintegration"
+        class="com.vaadin.sass.linker.SassLinker" />
+    <add-linker name="scssintegration" />
+
+    <inherits name="com.vaadin.terminal.gwt.DefaultWidgetSet" />
     <inherits name="org.vaadin.artur.icepush.IcepushaddonWidgetset" />
 </module>

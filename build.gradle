@@ -47,23 +47,23 @@ dependencies{
 //	compile files("lib/metadata-extractor-2.3.1.jar")
 
 	compile "org.icefaces:icepush:3.0.1"
-	compile "org.vaadin.addons:icepush:0.5.3"
-//	compile "org.vaadin.addons:icepush-gwt:0.5.3"
+	compile "org.vaadin.addons:icepush:0.5.4"
+//	compile "org.vaadin.addons:icepush-gwt:0.5.4"
 	compile files("lib/icepush-gwt.jar")
 	
-    compile "com.vaadin:vaadin-server:7.0.0.beta10"  
-    compile "com.vaadin:vaadin-client:7.0.0.beta10"
-//    compile "com.vaadin:vaadin-shared:7.0.0.beta10"
-    compile "com.vaadin:vaadin-client-compiled:7.0.0.beta10"  
-    compile "com.vaadin:vaadin-themes:7.0.0.beta10"  	
+    compile "com.vaadin:vaadin-server:7.0.0.beta11"  
+    compile "com.vaadin:vaadin-client:7.0.0.beta11"
+//    compile "com.vaadin:vaadin-shared:7.0.0.beta11"
+    compile "com.vaadin:vaadin-client-compiled:7.0.0.beta11"  
+    compile "com.vaadin:vaadin-themes:7.0.0.beta11"  	
 
 //	compile "com.google.gwt:gwt-user:2.3.0"  
 //    compile "com.google.gwt:gwt-dev:2.3.0"
 
-//    compileWidgetset "com.vaadin:vaadin-theme-compiler:7.0.0.beta10"  	
-    compileWidgetset "com.vaadin:vaadin-client-compiler:7.0.0.beta10"  	
+//    compileWidgetset "com.vaadin:vaadin-theme-compiler:7.0.0.beta11"  	
+    compileWidgetset "com.vaadin:vaadin-client-compiler:7.0.0.beta11"  	
 
-	sshAntTask 'org.apache.ant:ant-jsch:1.7.1', 'jsch:jsch:0.1.29'	
+	sshAntTask 'org.apache.ant:ant-jsch:1.8.4', 'com.jcraft:jsch:0.1.49'
 }
 
 // Setup source folders  
