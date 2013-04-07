@@ -45,6 +45,7 @@ public final class FolderContentView extends VerticalLayout {
         implements
             Table.ColumnGenerator
     {
+        @Override
         public Component generateCell(
             Table pSource,
             Object pElem,

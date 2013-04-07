@@ -1,16 +1,14 @@
 apply plugin: 'java'
 apply plugin: 'war'  
 apply plugin: 'eclipse'  
-apply plugin: 'jetty'  
+apply from: 'http://plugins.jasoft.fi/vaadin.plugin'
+
 
 // Project properties  
 version = "0.0.1"
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 webAppDirName = 'WebContent'
-ext.vaadinDir = webAppDirName+'/VAADIN'  
-ext.gwtBuildDir = vaadinDir + '/widgetsets'  
-ext.widgetsetClass = 'org.kari.album.PhotoAlbumApplicationWidgetset'  
 
 jar {
 //    manifest {
@@ -18,20 +16,50 @@ jar {
 //    }
 }
 
+buildscript {
+    repositories {
+        mavenCentral()
+		flatDir dirs: './ext'
+	}
+
+    dependencies {
+        classpath 'fi.jasoft.plugin:VaadinPlugin:0.5.1'
+	}
+}
+
 // Repositories  
 repositories{  
     mavenCentral()  
     mavenRepo url: 'http://maven.vaadin.com/vaadin-addons'  		
+	flatDir dirs: './ext'
 	ivy {
 		name = 'local-repo'
 		url	 "../KUI/repos"
 	}
-	//	def f = file("../KUI/repos")
-	//	f.listFiles().each { println it }
+}
+
+// Setup source folders  
+sourceSets{  
+    main{
+        java {
+            srcDirs = ['src'] 
+        }  
+        resources {
+            srcDirs = ['resources']
+        }  
+    }  
+}
+
+if (!project.plugins.findPlugin(fi.jasoft.plugin.VaadinPlugin)) {
+//    project.apply(plugin: fi.jasoft.plugin.VaadinPlugin)
+}
+
+vaadin {
+	version = '7.0.0'
+	widgetset = 'org.kari.album.PhotoAlbumApplicationWidgetset'
 }
 
 configurations {
-	compileWidgetset
 	sshAntTask
 }
 
@@ -43,71 +71,21 @@ dependencies{
 	compile "com.drewnoakes:metadata-extractor:2.6.2"
 //	compile "org.kari:KUI:1.0"
 	compile files("../KUI/repos/KUI-1.0.jar")
-//    compile files("lib/icepush-0.5.0.jar")
 //	compile files("lib/metadata-extractor-2.3.1.jar")
 
+/*	
+    compile "com.vaadin:vaadin-server:7.0.0"  
+    compile "com.vaadin:vaadin-client:7.0.0"
+    compile "com.vaadin:vaadin-shared:7.0.0"
+    compile "com.vaadin:vaadin-client-compiled:7.0.0"  
+    compile "com.vaadin:vaadin-themes:7.0.0"  	
+*/
 	compile "org.icefaces:icepush:3.0.1"
-	compile "org.vaadin.addons:icepush:0.5.4"
-//	compile "org.vaadin.addons:icepush-gwt:0.5.4"
 	compile files("lib/icepush-gwt.jar")
+	compile "org.vaadin.addons:icepush:0.5.5"
 	
-    compile "com.vaadin:vaadin-server:7.0.0.beta11"  
-    compile "com.vaadin:vaadin-client:7.0.0.beta11"
-//    compile "com.vaadin:vaadin-shared:7.0.0.beta11"
-    compile "com.vaadin:vaadin-client-compiled:7.0.0.beta11"  
-    compile "com.vaadin:vaadin-themes:7.0.0.beta11"  	
-
-//	compile "com.google.gwt:gwt-user:2.3.0"  
-//    compile "com.google.gwt:gwt-dev:2.3.0"
-
-//    compileWidgetset "com.vaadin:vaadin-theme-compiler:7.0.0.beta11"  	
-    compileWidgetset "com.vaadin:vaadin-client-compiler:7.0.0.beta11"  	
-
 	sshAntTask 'org.apache.ant:ant-jsch:1.8.4', 'com.jcraft:jsch:0.1.49'
 }
-
-// Setup source folders  
-sourceSets{  
-    main{  
-        java {
-            srcDir 'src'  
-        }  
-        resources {
-            srcDir 'resources'  
-        }  
-    }  
-}
-
-// Widgetset compilation  
-task compileWidgetset << {  
-    // Compile  
-    ant.java(classname: 'com.google.gwt.dev.Compiler', failOnError: 'yes', fork: 'true')
-    {
-        classpath {  
-            pathElement(path: configurations.compile.asPath)  
-            pathElement(path: configurations.compileWidgetset.asPath)  
-            pathElement(path: sourceSets.main.runtimeClasspath.asPath)  
-            sourceSets.main.java.srcDirs.each{  
-                pathelement(location:it.absolutePath)  
-            }  
-        }  
-  
-        arg(line: '-war ' + gwtBuildDir)  
-        arg(line: '-logLevel INFO')  
-        arg(line: '-style OBF')  
-        arg(line: '-localWorkers 2')  
-        arg(line: widgetsetClass)  
-  
-        jvmarg(value: '-Djava.awt.headless=true')  
-        jvmarg(value: '-XX:MaxPermSize=256M')  
-        jvmarg(value: '-Xmx512M')  
-    }  
-}
-compileWidgetset.dependsOn classes
-
-// Require widgetset compilation before WAR is built  
-// war.dependsOn compileWidgetset  
-
 
 task uploadTomcat() {
 	ant.taskdef(

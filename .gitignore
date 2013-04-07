@@ -10,3 +10,6 @@ tmp/*
 *#
 WebContent/VAADIN/*
 WebContent/widgetsets/*
+.classpath
+.project
+.settings/org.eclipse.jdt.core.prefs
